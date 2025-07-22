@@ -4,16 +4,16 @@
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<title>Chapter 2 Linear mixed-effects modeling | Simulating power for mixed-effects models</title>
+<title>Chapter 2 Linear mixed-effects modeling | Improving your research with simulation</title>
 <meta name="author" content="Dale J. Barr">
 <meta name="description" content="For this first section, we will learn to simulate data corresponding to an experiment with a single, two-level factor (independent variable) that is within-subjects and between-items. Let's...">
 <meta name="generator" content="bookdown 0.43 with bs4_book()">
-<meta property="og:title" content="Chapter 2 Linear mixed-effects modeling | Simulating power for mixed-effects models">
+<meta property="og:title" content="Chapter 2 Linear mixed-effects modeling | Improving your research with simulation">
 <meta property="og:type" content="book">
-<meta property="og:url" content="https://dalejbarr.github.io/aa-powersim/linear-mixed-effects-modeling.html">
+<meta property="og:url" content="https://dalejbarr.github.io/kcl-orss/linear-mixed-effects-modeling.html">
 <meta property="og:description" content="For this first section, we will learn to simulate data corresponding to an experiment with a single, two-level factor (independent variable) that is within-subjects and between-items. Let's...">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Chapter 2 Linear mixed-effects modeling | Simulating power for mixed-effects models">
+<meta name="twitter:title" content="Chapter 2 Linear mixed-effects modeling | Improving your research with simulation">
 <meta name="twitter:description" content="For this first section, we will learn to simulate data corresponding to an experiment with a single, two-level factor (independent variable) that is within-subjects and between-items. Let's...">
 <!-- JS --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/6.4.6/fuse.js" integrity="sha512-zv6Ywkjyktsohkbp9bb45V6tEMoWhzFzXis+LrMehmJZZSys19Yxf1dopHx7WzIKxr5tK2dVcYmaCk2uqdjF4A==" crossorigin="anonymous"></script><script src="https://kit.fontawesome.com/6ecbd6c532.js" crossorigin="anonymous"></script><script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link href="libs/bootstrap-4.6.0/bootstrap.min.css" rel="stylesheet">
@@ -62,7 +62,7 @@
 
     <div class="d-flex align-items-start justify-content-between">
       <h1>
-        <a href="index.html" title="">Simulating power for mixed-effects models</a>
+        <a href="index.html" title="">Improving your research with simulation</a>
       </h1>
       <button class="btn btn-outline-primary d-lg-none ml-2 mt-1" type="button" data-toggle="collapse" data-target="#main-nav" aria-expanded="true" aria-controls="main-nav"><i class="fas fa-bars"></i><span class="sr-only">Show table of contents</span></button>
     </div>
@@ -157,7 +157,7 @@
 <span class="header-section-number">2.1.1</span> Set up the environment<a class="anchor" aria-label="anchor" href="#set-up-the-environment"><i class="fas fa-link"></i></a>
 </h3>
 <p>If you want to get the same results as everyone else for this exercise, then we all should seed the random number generator with the same value. While we're at it, let's load in the packages we need.</p>
-<div class="sourceCode" id="cb85"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb86"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="st"><a href="https://github.com/lme4/lme4/">"lme4"</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="st"><a href="https://tidyverse.tidyverse.org">"tidyverse"</a></span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/ns-load.html">requireNamespace</a></span><span class="op">(</span><span class="st">"MASS"</span><span class="op">)</span> <span class="co">## make sure it's there but don't load it</span></span>
@@ -169,7 +169,7 @@
 <span class="header-section-number">2.1.2</span> Define the parameters for the DGP<a class="anchor" aria-label="anchor" href="#dgp"><i class="fas fa-link"></i></a>
 </h3>
 <p>Now let's define the parameters for the DGP (data generating process).</p>
-<div class="sourceCode" id="cb86"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb87"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">nsubj</span> <span class="op">&lt;-</span> <span class="fl">100</span> <span class="co"># number of subjects</span></span>
 <span><span class="va">nitem</span> <span class="op">&lt;-</span> <span class="fl">50</span>  <span class="co"># must be an even number</span></span>
 <span></span>
@@ -242,7 +242,7 @@ Hint (iri)
 <button>
 Solution
 </button>
-<div class="sourceCode" id="cb88"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb89"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">items</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://tibble.tidyverse.org/reference/tibble.html">tibble</a></span><span class="op">(</span>item_id <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="va">nitem</span>,</span>
 <span>                cond <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html">rep</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">.5</span>, <span class="fl">.5</span><span class="op">)</span>, times <span class="op">=</span> <span class="va">nitem</span> <span class="op">/</span> <span class="fl">2</span><span class="op">)</span>,</span>
 <span>                iri <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html">rnorm</a></span><span class="op">(</span><span class="va">nitem</span>, <span class="fl">0</span>, sd <span class="op">=</span> <span class="va">iri_sd</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
@@ -257,7 +257,7 @@ Solution
 <p>Do not run <code><a href="http://www.stats.ox.ac.uk/pub/MASS4/">library("MASS")</a></code> just to get this one function, because <code>MASS</code> has a function <code><a href="https://dplyr.tidyverse.org/reference/select.html">select()</a></code> that will overwrite the tidyverse version. Since all we want from MASS is the <code>mvrnorm()</code> function, we can just access it directly by the <code>pkgname::function</code> syntax, i.e., <code><a href="https://rdrr.io/pkg/MASS/man/mvrnorm.html">MASS::mvrnorm()</a></code>.</p>
 </div>
 <p>Here is an example of how to use <code><a href="https://rdrr.io/pkg/MASS/man/mvrnorm.html">MASS::mvrnorm()</a></code> to randomly generate correlated data (with <span class="math inline">\(r = -.6\)</span>) for a simple bivariate case. In this example, the variances of each of the two variables is defined as 1, such that the covariance becomes equal to the correlation between the variables.</p>
-<div class="sourceCode" id="cb89"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb90"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">## mx is the variance-covariance matrix</span></span>
 <span><span class="va">mx</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html">rbind</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="op">-</span><span class="fl">.6</span><span class="op">)</span>,</span>
 <span>            <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">.6</span>, <span class="fl">1</span><span class="op">)</span><span class="op">)</span></span>
@@ -409,7 +409,7 @@ Hint 2 (covariance)
 <button>
 Hint 3 (building a matrix)
 </button>
-<div class="sourceCode" id="cb92"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb93"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">## bind together rows</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/cbind.html">rbind</a></span><span class="op">(</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="va">sri_sd</span><span class="op">^</span><span class="fl">2</span>,            <span class="va">r</span> <span class="op">*</span> <span class="va">sri_sd</span> <span class="op">*</span> <span class="va">srs_sd</span><span class="op">)</span>,</span>
@@ -427,7 +427,7 @@ Hint 4: (matrix to tibble)
 <button>
 Solution
 </button>
-<div class="sourceCode" id="cb93"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb94"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">mx</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html">rbind</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="va">sri_sd</span><span class="op">^</span><span class="fl">2</span>,               <span class="va">rcor</span> <span class="op">*</span> <span class="va">sri_sd</span> <span class="op">*</span> <span class="va">srs_sd</span><span class="op">)</span>,</span>
 <span>            <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="va">rcor</span> <span class="op">*</span> <span class="va">sri_sd</span> <span class="op">*</span> <span class="va">srs_sd</span>, <span class="va">srs_sd</span><span class="op">^</span><span class="fl">2</span><span class="op">)</span><span class="op">)</span> <span class="co"># look at it</span></span>
 <span></span>
@@ -464,7 +464,7 @@ Solution
 <button>
 Solution
 </button>
-<div class="sourceCode" id="cb95"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb96"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">trials</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/cross_join.html">cross_join</a></span><span class="op">(</span><span class="va">subjects</span> <span class="op">|&gt;</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html">select</a></span><span class="op">(</span><span class="va">subj_id</span><span class="op">)</span>,</span>
 <span>                     <span class="va">items</span> <span class="op">|&gt;</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html">select</a></span><span class="op">(</span><span class="va">item_id</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html">mutate</a></span><span class="op">(</span>err <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html">rnorm</a></span><span class="op">(</span>n <span class="op">=</span> <span class="va">nsubj</span> <span class="op">*</span> <span class="va">nitem</span>,</span>
@@ -495,7 +495,7 @@ Solution
 <button>
 Solution
 </button>
-<div class="sourceCode" id="cb97"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb98"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">dat_sim</span> <span class="op">&lt;-</span> <span class="va">subjects</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate-joins.html">inner_join</a></span><span class="op">(</span><span class="va">trials</span>, <span class="st">"subj_id"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate-joins.html">inner_join</a></span><span class="op">(</span><span class="va">items</span>, <span class="st">"item_id"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
@@ -528,7 +528,7 @@ Solution
 <button>
 Solution
 </button>
-<div class="sourceCode" id="cb99"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb100"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">dat_sim2</span> <span class="op">&lt;-</span> <span class="va">dat_sim</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html">mutate</a></span><span class="op">(</span>Y <span class="op">=</span> <span class="va">mu</span> <span class="op">+</span> <span class="va">sri</span> <span class="op">+</span> <span class="va">iri</span> <span class="op">+</span> <span class="op">(</span><span class="va">eff</span> <span class="op">+</span> <span class="va">srs</span><span class="op">)</span> <span class="op">*</span> <span class="va">cond</span> <span class="op">+</span> <span class="va">err</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html">select</a></span><span class="op">(</span><span class="va">subj_id</span>, <span class="va">item_id</span>, <span class="va">Y</span>, <span class="fu"><a href="https://tidyselect.r-lib.org/reference/everything.html">everything</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
@@ -543,7 +543,7 @@ Solution
 <button>
 Solution
 </button>
-<div class="sourceCode" id="cb100"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb101"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">mod_sim</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/lme4/man/lmer.html">lmer</a></span><span class="op">(</span><span class="va">Y</span> <span class="op">~</span> <span class="va">cond</span> <span class="op">+</span> <span class="op">(</span><span class="fl">1</span> <span class="op">+</span> <span class="va">cond</span> <span class="op">|</span> <span class="va">subj_id</span><span class="op">)</span> <span class="op">+</span> <span class="op">(</span><span class="fl">1</span> <span class="op">|</span> <span class="va">item_id</span><span class="op">)</span>,</span>
 <span>                <span class="va">dat_sim2</span><span class="op">)</span></span>
 <span></span>
@@ -660,7 +660,7 @@ Solution (random effects)
 <p>Now wrap the code you created from section <a href="linear-mixed-effects-modeling.html#dgp">2.1.2</a> to <a href="linear-mixed-effects-modeling.html#addy">2.1.7</a> into a single function <code>generate_data()</code> that takes the arguments: <code>eff</code> (effect size), <code>nsubj</code> (number of subjects), <code>nitem</code> (number of items), and then all the remaining DGP paramemters in this order: <code>mu</code>, <code>iri_sd</code>, <code>sri_sd</code>, <code>srs_sd</code>, <code>rcor</code>, and <code>err_sd</code>.</p>
 <p>The code should return a table with columns <code>subj_id</code>, <code>item_id</code>, <code>cond</code>, and <code>Y</code>.</p>
 <p>Here is 'starter' code that does nothing.</p>
-<div class="sourceCode" id="cb102"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb103"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">generate_data</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">eff</span>, <span class="va">nsubj</span>, <span class="va">nitem</span>,</span>
 <span>                          <span class="va">mu</span>, <span class="va">iri_sd</span>, <span class="va">sri_sd</span>,</span>
 <span>                          <span class="va">srs_sd</span>, <span class="va">rcor</span>, <span class="va">err_sd</span><span class="op">)</span> <span class="op">{</span></span>
@@ -686,7 +686,7 @@ Solution (random effects)
 <button>
 Solution
 </button>
-<div class="sourceCode" id="cb103"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb104"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">generate_data</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">eff</span>, <span class="va">nsubj</span>, <span class="va">nitem</span>,</span>
 <span>                          <span class="va">mu</span>, <span class="va">iri_sd</span>, <span class="va">sri_sd</span>,</span>
 <span>                          <span class="va">srs_sd</span>, <span class="va">rcor</span>, <span class="va">err_sd</span><span class="op">)</span> <span class="op">{</span></span>
@@ -729,7 +729,7 @@ Solution
 <span class="header-section-number">2.2.2</span> Re-write <code>analyze_data()</code><a class="anchor" aria-label="anchor" href="#re-write-analyze_data"><i class="fas fa-link"></i></a>
 </h3>
 <p>Now let's re-write our <code>analyze_data()</code> function for this design.</p>
-<div class="sourceCode" id="cb104"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb105"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">analyze_data</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">dat</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/warning.html">suppressWarnings</a></span><span class="op">(</span> <span class="co"># ignore non-convergence</span></span>
 <span>    <span class="fu"><a href="https://rdrr.io/r/base/message.html">suppressMessages</a></span><span class="op">(</span><span class="op">{</span> <span class="co"># ignore 'singular fit'</span></span>
@@ -740,7 +740,7 @@ Solution
 <button>
 Solution
 </button>
-<div class="sourceCode" id="cb105"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb106"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">analyze_data</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">dat</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/warning.html">suppressWarnings</a></span><span class="op">(</span> <span class="co"># ignore non-convergence</span></span>
 <span>    <span class="fu"><a href="https://rdrr.io/r/base/message.html">suppressMessages</a></span><span class="op">(</span><span class="op">{</span> <span class="co"># ignore 'singular fit'</span></span>
@@ -758,7 +758,7 @@ Solution
 <p>Let's change it so it gets information about the regression coefficient (fixed effect) for <code>cond</code>. Unfortunately we can't use <code><a href="https://generics.r-lib.org/reference/tidy.html">broom::tidy()</a></code> here.</p>
 <p>Recall that we have suppressed any messages about singularity or nonconvergence. We want to track this information, so we'll get it from the fitted model object.</p>
 <p>To find out whether a fit is singular, we can use the function <code><a href="https://rdrr.io/pkg/lme4/man/isSingular.html">isSingular()</a></code>. Figuring out whether a model has converged is more complicate. Use the helper function <code>check_converged()</code> below. This takes a fitted model object as input and returns <code>TRUE</code> if the model converged, <code>FALSE</code> otherwise.</p>
-<div class="sourceCode" id="cb106"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb107"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">check_converged</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">mobj</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  <span class="co">## warning: this is kind of a hack!</span></span>
 <span>  <span class="co">## see also performance::check_convergence()</span></span>
@@ -767,12 +767,12 @@ Solution
 <span><span class="op">}</span></span></code></pre></div>
 <p>Use <code><a href="https://rdrr.io/pkg/nlme/man/fixed.effects.html">fixef()</a></code> to get the fixed effects estimates from the model.</p>
 <p>You'll also want to get the standard error for the fixed effects. You can do so using the code</p>
-<div class="sourceCode" id="cb107"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb108"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/MathFun.html">sqrt</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/diag.html">diag</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/vcov.html">vcov</a></span><span class="op">(</span><span class="va">mobj</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p>where <code>mobj</code> is the name of the fitted model object. We'll then calculate a <span class="math inline">\(p\)</span> value based on Wald <span class="math inline">\(z\)</span>, which is just the estimate divided by its standard error, and then treated as a <span class="math inline">\(z\)</span> statistic (from the standard normal distribution). If we call that statistic <code>tval</code>, you can get the <span class="math inline">\(p\)</span> value using <code>2 * (1 - pnorm(abs(tval)))</code>.</p>
 <p><strong>TASK: Write a new version of <code>extract_stats()</code> that takes <code>mobj</code>, a fitted model object as input, and returns a tibble with columns <code>sing</code> (<code>TRUE</code> for singular fit, <code>FALSE</code> otherwise), <code>conv</code> (<code>TRUE</code> for converged, <code>FALSE</code> otherwise), <code>estimate</code> with the fixed effect estimate for the effect of <code>cond</code>, <code>stderr</code> for the standard error, <code>tval</code> for the <span class="math inline">\(t\)</span>-value, and <code>pval</code> for the <span class="math inline">\(p\)</span>-value.</strong></p>
 <p>Test it by running it out on <code>mod_sim</code> which you estimated above. You should get the results like the following.</p>
-<div class="sourceCode" id="cb108"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb109"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">extract_stats</span><span class="op">(</span><span class="va">mod_sim</span><span class="op">)</span></span></code></pre></div>
 <pre><code>## # A tibble: 1 × 6
 ##   sing  conv  estimate stderr  tval    pval
@@ -782,7 +782,7 @@ Solution
 <button>
 Solution
 </button>
-<div class="sourceCode" id="cb110"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb111"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">extract_stats</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">mobj</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  <span class="fu"><a href="https://tibble.tidyverse.org/reference/tibble.html">tibble</a></span><span class="op">(</span>sing <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/lme4/man/isSingular.html">isSingular</a></span><span class="op">(</span><span class="va">mobj</span><span class="op">)</span>,</span>
 <span>         conv <span class="op">=</span> <span class="fu">check_converged</span><span class="op">(</span><span class="va">mobj</span><span class="op">)</span>,</span>
@@ -793,7 +793,7 @@ Solution
 <span><span class="op">}</span></span></code></pre></div>
 </div>
 <p>Now we have completed the three main functions for a single run as shown in <a href="building-blocks-of-simulation.html#fig:flow-img">1.1</a>. We can try them out like this:</p>
-<div class="sourceCode" id="cb111"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb112"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">generate_data</span><span class="op">(</span>eff <span class="op">=</span> <span class="fl">0</span>, nsubj <span class="op">=</span> <span class="fl">20</span>, nitem <span class="op">=</span> <span class="fl">10</span>,</span>
 <span>              mu <span class="op">=</span> <span class="fl">800</span>, iri_sd <span class="op">=</span> <span class="fl">80</span>, sri_sd <span class="op">=</span> <span class="fl">100</span>,</span>
 <span>              srs_sd <span class="op">=</span> <span class="fl">40</span>, rcor <span class="op">=</span> <span class="fl">.2</span>, err_sd <span class="op">=</span> <span class="fl">200</span><span class="op">)</span> <span class="op">|&gt;</span></span>
@@ -811,7 +811,7 @@ Solution
 </h3>
 <p>The function <code>do_once()</code> performs all three functions (generates the data, analyzes it, and subtracts the results). It needs some minor changes to work with the parameters of the new DGP.</p>
 <p>Now let's re-write <code>do_once()</code>. Here's starter code from the function we created for the one-sample t-test context. You'll need to change its arguments to match <code>generate_data()</code> as well as the arguments passed to <code>generate_data()</code> via <code><a href="https://purrr.tidyverse.org/reference/map.html">map()</a></code>. It's also a good idea to update the <code><a href="https://rdrr.io/r/base/message.html">message()</a></code> it prints for the user.</p>
-<div class="sourceCode" id="cb113"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb114"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">do_once</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">nmc</span>, <span class="va">eff</span>, <span class="va">nsubj</span>, <span class="va">sd</span>, <span class="va">alpha</span> <span class="op">=</span> <span class="fl">.05</span><span class="op">)</span> <span class="op">{</span></span>
 <span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/message.html">message</a></span><span class="op">(</span><span class="st">"computing power over "</span>, <span class="va">nmc</span>, <span class="st">" runs with eff="</span>,</span>
@@ -824,14 +824,14 @@ Solution
 <span><span class="op">}</span></span></code></pre></div>
 <p>It doesn't do everything we need (yet) because in the end we'll want to <code>compute_power()</code> and return that instead. But we'll save that for later.</p>
 <p>Try it out with the code below. Results should look as follows.</p>
-<div class="sourceCode" id="cb114"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb115"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html">set.seed</a></span><span class="op">(</span><span class="fl">1451</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">do_test</span> <span class="op">&lt;-</span> <span class="fu">do_once</span><span class="op">(</span>eff <span class="op">=</span> <span class="fl">0</span>, nsubj <span class="op">=</span> <span class="fl">20</span>, nitem <span class="op">=</span> <span class="fl">10</span>, nmc <span class="op">=</span> <span class="fl">20</span>,</span>
 <span>                   mu <span class="op">=</span> <span class="fl">800</span>, iri_sd <span class="op">=</span> <span class="fl">80</span>, sri_sd <span class="op">=</span> <span class="fl">100</span>,</span>
 <span>                   srs_sd <span class="op">=</span> <span class="fl">40</span>, rcor <span class="op">=</span> <span class="fl">.2</span>, err_sd <span class="op">=</span> <span class="fl">200</span><span class="op">)</span></span></code></pre></div>
 <pre><code>## computing stats over 20 runs for nsubj=20; nitem=10; eff=0</code></pre>
-<div class="sourceCode" id="cb116"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb117"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">do_test</span></span></code></pre></div>
 <pre><code>## # A tibble: 20 × 4
 ##    run_id dat                mobj      stats           
@@ -860,7 +860,7 @@ Solution
 <button>
 Solution
 </button>
-<div class="sourceCode" id="cb118"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb119"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">do_once</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">eff</span>, <span class="va">nsubj</span>, <span class="va">nitem</span>, <span class="va">nmc</span>,</span>
 <span>                   <span class="va">mu</span>, <span class="va">iri_sd</span>, <span class="va">sri_sd</span>,</span>
 <span>                   <span class="va">srs_sd</span>, <span class="va">rcor</span>, <span class="va">err_sd</span><span class="op">)</span> <span class="op">{</span></span>
@@ -884,7 +884,7 @@ Solution
 </h3>
 <p>We're nearly there. Our <code>do_once()</code> function returns the raw data from the run, but what we'd really like instead are the power statistics. So we'll need to re-write <code>compute_power()</code> and then include that in <code>do_once()</code>. We stored the results of the (old) <code>do_once()</code> in <code>do_test</code>, which is useful for testing it out.</p>
 <p>Recall that we can get all the stats into a single table like so.</p>
-<div class="sourceCode" id="cb119"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb120"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">do_test</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html">select</a></span><span class="op">(</span><span class="va">run_id</span>, <span class="va">stats</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://tidyr.tidyverse.org/reference/unnest.html">unnest</a></span><span class="op">(</span><span class="va">stats</span><span class="op">)</span></span></code></pre></div>
@@ -913,7 +913,7 @@ Solution
 ## 20     20 TRUE  FALSE   -55.5    63.7 -0.872  0.383</code></pre>
 <p><strong>TASK: Write <code>compute_power()</code> to provide not only power information, but also reports the proportion of runs that had a 'singularity' message (<code>n_sing</code>) or that did not converge (<code>n_nonconv</code>).</strong></p>
 <p>Results should look like so.</p>
-<div class="sourceCode" id="cb121"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb122"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">compute_power</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">x</span>, <span class="va">alpha</span> <span class="op">=</span> <span class="fl">.05</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  <span class="co">## after completing all the Monte Carlo runs for a set,</span></span>
 <span>  <span class="co">## calculate statistics</span></span>
@@ -926,7 +926,7 @@ Solution
 <span>              N <span class="op">=</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/context.html">n</a></span><span class="op">(</span><span class="op">)</span>,</span>
 <span>              power <span class="op">=</span> <span class="va">n_sig</span> <span class="op">/</span> <span class="va">N</span><span class="op">)</span></span>
 <span><span class="op">}</span></span></code></pre></div>
-<div class="sourceCode" id="cb122"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb123"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">do_test</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu">compute_power</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 <pre><code>## # A tibble: 1 × 5
@@ -937,7 +937,7 @@ Solution
 <button>
 Solution
 </button>
-<div class="sourceCode" id="cb124"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb125"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">compute_power</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">x</span>, <span class="va">alpha</span> <span class="op">=</span> <span class="fl">.05</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  <span class="co">## after completing all the Monte Carlo runs for a set,</span></span>
 <span>  <span class="co">## calculate statistics</span></span>
@@ -952,7 +952,7 @@ Solution
 <span><span class="op">}</span></span></code></pre></div>
 </div>
 <p><strong>TASK: update <code>do_once()</code> so that it ends with <code>compute_power()</code>.</strong></p>
-<div class="sourceCode" id="cb125"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb126"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">do_once</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">eff</span>, <span class="va">nsubj</span>, <span class="va">nitem</span>, <span class="va">nmc</span>,</span>
 <span>                   <span class="va">mu</span>, <span class="va">iri_sd</span>, <span class="va">sri_sd</span>,</span>
 <span>                   <span class="va">srs_sd</span>, <span class="va">rcor</span>, <span class="va">err_sd</span><span class="op">)</span> <span class="op">{</span></span>
@@ -970,7 +970,7 @@ Solution
 <span>           stats <span class="op">=</span> <span class="fu"><a href="https://purrr.tidyverse.org/reference/map.html">map</a></span><span class="op">(</span><span class="va">mobj</span>, \<span class="op">(</span><span class="va">.x</span><span class="op">)</span> <span class="fu">extract_stats</span><span class="op">(</span><span class="va">.x</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu">compute_power</span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="op">}</span></span></code></pre></div>
-<div class="sourceCode" id="cb126"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb127"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html">set.seed</a></span><span class="op">(</span><span class="fl">1451</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu">do_once</span><span class="op">(</span>eff <span class="op">=</span> <span class="fl">0</span>, nsubj <span class="op">=</span> <span class="fl">20</span>, nitem <span class="op">=</span> <span class="fl">10</span>, nmc <span class="op">=</span> <span class="fl">20</span>,</span>
@@ -985,7 +985,7 @@ Solution
 <button>
 Solution
 </button>
-<div class="sourceCode" id="cb129"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb130"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">do_once</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">eff</span>, <span class="va">nsubj</span>, <span class="va">nitem</span>, <span class="va">nmc</span>,</span>
 <span>                   <span class="va">mu</span>, <span class="va">iri_sd</span>, <span class="va">sri_sd</span>,</span>
 <span>                   <span class="va">srs_sd</span>, <span class="va">rcor</span>, <span class="va">err_sd</span><span class="op">)</span> <span class="op">{</span></span>
@@ -1010,7 +1010,7 @@ Solution
 <span class="header-section-number">2.2.6</span> Main code<a class="anchor" aria-label="anchor" href="#main-code"><i class="fas fa-link"></i></a>
 </h3>
 <p>Now that we've re-written all of the functions, let's add the following lines to create a fully reproducible script that we can run in batch mode.</p>
-<div class="sourceCode" id="cb130"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb131"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html">set.seed</a></span><span class="op">(</span><span class="fl">1451</span><span class="op">)</span> <span class="co"># for deterministic output</span></span>
 <span></span>
 <span><span class="co">## determine effect sizes, nsubj, nitem, and nmc from the command line</span></span>
@@ -1054,7 +1054,7 @@ Solution
 <button>
 Click here to see the full script
 </button>
-<div class="sourceCode" id="cb131"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb132"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">#############################</span></span>
 <span><span class="co">## ADD-ON PACKAGES</span></span>
 <span></span>
@@ -1402,7 +1402,7 @@ $( document ).ready(function() {
 <footer class="bg-primary text-light mt-5"><div class="container"><div class="row">
 
   <div class="col-12 col-md-6 mt-3">
-    <p>"<strong>Simulating power for mixed-effects models</strong>" was written by Dale J. Barr. It was last built on 2025-07-22.</p>
+    <p>"<strong>Improving your research with simulation</strong>" was written by Dale J. Barr. It was last built on 2025-07-22.</p>
   </div>
 
   <div class="col-12 col-md-6 mt-3">

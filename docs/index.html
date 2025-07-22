@@ -4,17 +4,17 @@
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<title>Workshop: Simulating power for mixed-effects models | Simulating power for mixed-effects models</title>
+<title>Workshop: Simulating power for mixed-effects models | Improving your research with simulation</title>
 <meta name="author" content="Dale J. Barr">
-<meta name="description" content="Workshop at AMLaP Asia, November 30, 2023.">
+<meta name="description" content="Workshop at KCL Open Research Summer School, July 22, 2025.">
 <meta name="generator" content="bookdown 0.43 with bs4_book()">
-<meta property="og:title" content="Workshop: Simulating power for mixed-effects models | Simulating power for mixed-effects models">
+<meta property="og:title" content="Workshop: Simulating power for mixed-effects models | Improving your research with simulation">
 <meta property="og:type" content="book">
-<meta property="og:url" content="https://dalejbarr.github.io/aa-powersim">
-<meta property="og:description" content="Workshop at AMLaP Asia, November 30, 2023.">
+<meta property="og:url" content="https://dalejbarr.github.io/kcl-orss">
+<meta property="og:description" content="Workshop at KCL Open Research Summer School, July 22, 2025.">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Workshop: Simulating power for mixed-effects models | Simulating power for mixed-effects models">
-<meta name="twitter:description" content="Workshop at AMLaP Asia, November 30, 2023.">
+<meta name="twitter:title" content="Workshop: Simulating power for mixed-effects models | Improving your research with simulation">
+<meta name="twitter:description" content="Workshop at KCL Open Research Summer School, July 22, 2025.">
 <!-- JS --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/6.4.6/fuse.js" integrity="sha512-zv6Ywkjyktsohkbp9bb45V6tEMoWhzFzXis+LrMehmJZZSys19Yxf1dopHx7WzIKxr5tK2dVcYmaCk2uqdjF4A==" crossorigin="anonymous"></script><script src="https://kit.fontawesome.com/6ecbd6c532.js" crossorigin="anonymous"></script><script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link href="libs/bootstrap-4.6.0/bootstrap.min.css" rel="stylesheet">
 <script src="libs/bootstrap-4.6.0/bootstrap.bundle.min.js"></script><script src="libs/bs3compat-0.8.0/transition.js"></script><script src="libs/bs3compat-0.8.0/tabs.js"></script><script src="libs/bs3compat-0.8.0/bs3compat.js"></script><link href="libs/bs4_book-1.0.0/bs4_book.css" rel="stylesheet">
@@ -62,7 +62,7 @@
 
     <div class="d-flex align-items-start justify-content-between">
       <h1>
-        <a href="index.html" title="">Simulating power for mixed-effects models</a>
+        <a href="index.html" title="">Improving your research with simulation</a>
       </h1>
       <button class="btn btn-outline-primary d-lg-none ml-2 mt-1" type="button" data-toggle="collapse" data-target="#main-nav" aria-expanded="true" aria-controls="main-nav"><i class="fas fa-bars"></i><span class="sr-only">Show table of contents</span></button>
     </div>
@@ -89,38 +89,40 @@
 <h1>Workshop: Simulating power for mixed-effects models<a class="anchor" aria-label="anchor" href="#workshop-simulating-power-for-mixed-effects-models"><i class="fas fa-link"></i></a>
 </h1>
 <p><em>Dale J. Barr</em></p>
-<p><strong><a href="http://ling.cuhk.edu.hk/amlap.asia/">AMLaP Asia</a>, November 30, 2023</strong></p>
+<p><strong><a href="https://www.kcl.ac.uk/events/open-research-summer-school-2025">KCL Open Research Summer School</a>, July 22, 2025</strong></p>
 <div id="background" class="section level2 unnumbered">
 <h2>Background<a class="anchor" aria-label="anchor" href="#background"><i class="fas fa-link"></i></a>
 </h2>
 <p>Materials for a practical one-day workshop aimed at conference attendees who are interested in utilizing linear mixed-effects models in their research. Led by Dr. Dale Barr from the University of Glasgow, this workshop provides an introduction to simulating power in linear mixed-effects models.</p>
-<p>Two pre-requisites for the workshop are: (1) basic understanding of linear regression and (2) some familiarity with the R statistical programming environment (<a href="https://cran.r-project.org" class="uri">https://cran.r-project.org</a>). Please have R and RStudio installed on your laptop prior to the start of the workshop, including the packages <strong><a href="https://tidyverse.tidyverse.org">tidyverse</a></strong> and <strong><code>lme4</code></strong>.</p>
+<p>Two pre-requisites for the workshop are: (1) basic understanding of linear regression and (2) some familiarity with the R statistical programming environment (<a href="https://cran.r-project.org" class="uri">https://cran.r-project.org</a>).</p>
+<p>Please have R and RStudio installed on your laptop prior to the start of the workshop, including the packages <strong><a href="https://tidyverse.tidyverse.org">tidyverse</a></strong> and <strong><code>lme4</code></strong>.</p>
+<p>Alternatively, you can run R on the web using <a href="https://webr.r-wasm.org/latest" target="_blank">webR</a>. If you do so, please copy the following commands to the console window (in the lower left) so that it downloads the required add-on packages.</p>
+<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html">install.packages</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"dplyr"</span>, <span class="st">"tibble"</span>, <span class="st">"purrr"</span>, <span class="st">"tidyr"</span>, <span class="st">"broom"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div id="workshop-plan" class="section level2 unnumbered">
 <h2>Workshop plan<a class="anchor" aria-label="anchor" href="#workshop-plan"><i class="fas fa-link"></i></a>
 </h2>
 <ul>
 <li>
-<p><em>Part 1</em> (9:00-12:00): <strong>Building blocks of simulation</strong></p>
-<p>Provides an overview of critical programming skills for Monte Carlo simulation. We will build these skills by writing a script for a power simulation for a one-sample t-test.</p>
+<p>(14:30-16:30): <strong>Introduction &amp; Building blocks of simulation</strong></p>
+<p>Provides an overview of critical programming skills for Monte Carlo simulation. We will build these skills by writing a script for a power simulation for a one-sample t-test. I will give a short presentation prior to the hands-on part. <a href="slides/index.pdf" target="_download">Slides</a> from the presentation are available.</p>
 </li>
-<li>
-<p><em>Part 2</em> (14:00-17:00): <strong>Simulating power in linear mixed-effects models</strong></p>
-<p>Conceptual introduction to the data generating process (DGP) behind many models in psycholinguistics, and instructions on how to adapt the script generated in Part 1 to a mixed-model context.</p>
-</li>
+<li><p><strong>Simulating power in linear mixed-effects models</strong></p></li>
 </ul>
+<p>If you want to go further, you can work through Part 2 of the materials, which provides a conceptual introduction to the data generating process (DGP) behind many models in psycholinguistics, and gives instructions on how to adapt the script generated in Part 1 to a mixed-model context.</p>
 </div>
 <div id="notes-on-these-materials" class="section level2 unnumbered">
 <h2>Notes on these materials<a class="anchor" aria-label="anchor" href="#notes-on-these-materials"><i class="fas fa-link"></i></a>
 </h2>
 <p>These materials comprise an <strong>interactive textbook</strong>. Each "chapter" contains embedded exercises as well as web applications to help participants better understand the content. The interactive content will only work if you access this material through a web browser. Printing out the material is not recommended.</p>
-<p>It would be good to keep a local copy of these materials in case the website eventually disappears. You can <a href="amlap-asia-power-simulation.zip" target="_download">download an offline version</a> of these materials. It contains the current snapshot. Because things are likely to change while the workshop is ongoing, it would be best to wait until the end of the workshop before downloading a permanent version.</p>
+<p>It would be good to keep a local copy of these materials in case the website eventually disappears. You can <a href="kcl-simulation.zip" target="_download">download an offline version</a> of these materials. It contains the current snapshot. Because things are likely to change while the workshop is ongoing, it would be best to wait until the end of the workshop before downloading a permanent version.</p>
 <p>Once you've downloaded the archive, just extract the files, locate the file <code>index.html</code> in the <code>docs</code> directory, and open this file using a web browser.</p>
 <p>You are free to re-use and modify the material in this textbook for your own purposes, with the stipulation that you cite the original work. Please note additional terms of the <a href="https://creativecommons.org/licenses/by-sa/4.0/">Creative Commons CC-BY-SA 4.0 license</a> governing re-use of this material.</p>
 <blockquote>
-<p>Barr, Dale J. (2023). Simulating power for mixed-effects models (workshop materials). Downloaded from <a href="https://dalejbarr.github.io/aa-powersim" class="uri">https://dalejbarr.github.io/aa-powersim</a>.</p>
+<p>Barr, Dale J. (2025). Improving your research with simulation (workshop materials). Downloaded from <a href="https://dalejbarr.github.io/kcl-orss" class="uri">https://dalejbarr.github.io/kcl-orss</a>.</p>
 </blockquote>
-<p>The book was built using the R <a href="https://bookdown.org"><strong><code>bookdown</code></strong></a> package. The source files are available at <a href="https://github.com/dalejbarr/aa-powersim">github</a>.</p>
+<p>The book was built using the R <a href="https://bookdown.org"><strong><code>bookdown</code></strong></a> package. The source files are available at <a href="https://github.com/dalejbarr/kcl-orss">github</a>.</p>
 </div>
 <div id="found-an-issue" class="section level2 unnumbered">
 <h2>Found an issue?<a class="anchor" aria-label="anchor" href="#found-an-issue"><i class="fas fa-link"></i></a>
@@ -273,7 +275,7 @@ $( document ).ready(function() {
 <footer class="bg-primary text-light mt-5"><div class="container"><div class="row">
 
   <div class="col-12 col-md-6 mt-3">
-    <p>"<strong>Simulating power for mixed-effects models</strong>" was written by Dale J. Barr. It was last built on 2025-07-22.</p>
+    <p>"<strong>Improving your research with simulation</strong>" was written by Dale J. Barr. It was last built on 2025-07-22.</p>
   </div>
 
   <div class="col-12 col-md-6 mt-3">
