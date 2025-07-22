@@ -15,7 +15,7 @@ github-repo: "dalejbarr/kcl-orss"
 
 
 
-# Workshop: Simulating power for mixed-effects models {-}
+# Workshop: Improving your research with simulation {-}
 
 *Dale J. Barr*
 
@@ -23,13 +23,9 @@ github-repo: "dalejbarr/kcl-orss"
 
 ## Background {-}
 
-Materials for a practical one-day workshop aimed at conference attendees who are interested in utilizing linear mixed-effects models in their research. Led by Dr. Dale Barr from the University of Glasgow, this workshop provides an introduction to simulating power in linear mixed-effects models.
+Materials for a practical two-hour workshop aimed at researchers who are interested in utilizing simulation in their research. Led by Dr. Dale Barr from the University of Glasgow, this workshop provides an introduction to simulation through the estimation of power for linear mixed-effects models.
 
-Two pre-requisites for the workshop are: (1) basic understanding of linear regression and (2) some familiarity with the R statistical programming environment (https://cran.r-project.org).
-
-Please have R and RStudio installed on your laptop prior to the start of the workshop, including the packages **`{tidyverse}`** and **`lme4`**. 
-
-Alternatively, you can run R on the web using [webR](https://webr.r-wasm.org/latest){target="_blank"}. If you do so, please copy the following commands to the console window (in the lower left) so that it downloads the required add-on packages.
+Please have R and RStudio installed on your laptop prior to the start of the workshop, including the packages **`{tidyverse}`** and **`lme4`**.  Alternatively, you can run R on the web using [webR](https://webr.r-wasm.org/latest){target="_blank"}. If you do so, please copy the following commands to the console window (in the lower left) so that it downloads the required add-on packages.
 
 
 ``` r
@@ -40,7 +36,7 @@ install.packages(c("dplyr", "tibble", "purrr", "tidyr", "broom"))
 
 - (14:30-16:30): **Introduction & Building blocks of simulation**
 
-  Provides an overview of critical programming skills for Monte Carlo simulation. We will build these skills by writing a script for a power simulation for a one-sample t-test. I will give a short presentation prior to the hands-on part. [Slides](slides/index.pdf){target="_download"} from the presentation are available.
+  Provides an overview of critical programming skills for Monte Carlo simulation. We will build these skills by writing a script for a power simulation for a one-sample t-test. I will give a short presentation prior to the hands-on part. [Slides](slides.pdf){target="_download"} from the presentation are available.
    
 -  **Simulating power in linear mixed-effects models**
 
@@ -62,4 +58,4 @@ The book was built using the R [**`bookdown`**](https://bookdown.org) package. T
 
 ## Found an issue? {-}
 
-If you find errors or typos, have questions or suggestions, please file an issue at <https://github.com/dalejbarr/aa-powersim/issues>. Thanks!
+If you find errors or typos, have questions or suggestions, please file an issue at <https://github.com/dalejbarr/kcl-orss/issues>. Thanks!
