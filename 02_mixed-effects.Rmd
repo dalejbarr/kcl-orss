@@ -1,0 +1,775 @@
+# Linear mixed-effects modeling
+
+For this first section, we will learn to simulate data corresponding to an experiment with a single, two-level factor (independent variable) that is within-subjects and between-items.  Let's imagine that the experiment involves lexical decisions to a set of words (e.g., is "PINT" a word or nonword?), and the dependent variable is response time (in milliseconds), and the independent variable is word type (noun vs verb).  We want to treat both subjects and words as random factors (so that we can generalize to the population of events where subjects encounter words).
+
+The general linear model for our study is:
+
+$$Y_{si} = \beta_0 + S_{0s} + I_{0i} + (\beta_1 + S_{1s})X_{i} + e_{si}$$
+
+where:
+
+|           |       |                                                   |
+|-----------|-------|---------------------------------------------------|
+| $Y_{si}$  | `Y`   | RT for subject $s$ responding to item $i$;        |
+| $\beta_0$ | `mu`  | grand mean;                                       |
+| $S_{0s}$  | `sri` | random intercept for subject $s$;                 |
+| $I_{0i}$  | `iri` | random intercept for item $i$;                    |
+| $\beta_1$ | `eff` | fixed effect of word type (slope);                |
+| $S_{1s}$  | `srs` | by-subject random slope;                          |
+| $X_{i}$   | `x`   | deviation-coded predictor variable for word type; |
+| $e_{si}$  | `err` | residual error.                                   |
+
+**Subjects**
+
+$$\left<S_{0i},S_{1i}\right> \sim N(\left<0,0\right>, \Sigma)$$
+
+where
+
+$$\Sigma = \left(\begin{array}{cc}{\tau_{00}}^2 & \rho\tau_{00}\tau_{11} \\ \rho\tau_{00}\tau_{11} & {\tau_{11}}^2 \\ \end{array}\right) $$
+
+**Items**
+
+$$I_{0i} \sim N(0, \omega_{00}^2)$$
+
+## Generate data
+
+### Set up the environment 
+
+If you want to get the same results as everyone else for this exercise, then we all should seed the random number generator with the same value.  While we're at it, let's load in the packages we need.
+
+```{r, message=FALSE}
+library("lme4")
+library("tidyverse")
+requireNamespace("MASS") ## make sure it's there but don't load it
+
+set.seed(1451)
+```
+
+### Define the parameters for the DGP {#dgp}
+
+Now let's define the parameters for the DGP (data generating process).
+
+```{r}
+nsubj <- 100 # number of subjects
+nitem <- 50  # must be an even number
+
+mu <- 800 # grand mean
+eff <- 80 # 80 ms difference
+
+iri_sd <- 80 # by-item random intercept sd (omega_00)
+
+## for the by-subjects variance-covariance matrix
+sri_sd <- 100 # by-subject random intercept sd
+srs_sd <- 40 # by-subject random slope sd
+rcor <- .2 # correlation between intercept and slope
+
+err_sd <- 200 # residual (standard deviation)
+```
+
+You'll create three tables:
+
+|            |                                                                      |
+|------------|----------------------------------------------------------------------|
+| `subjects` | table of subject data including `subj_id` and subject random effects |
+| `items`    | table of stimulus data including `item_id` and item random effect    |
+| `trials`   | table of trials enumerating encounters between subjects/stimuli      |
+
+Then you will merge together the information in the three tables, and calculate the response variable according to the model formula above.
+
+### Generate a sample of stimuli
+
+Let's randomly generate our `r nitem` items. Create a tibble called `item` like the one below, where `iri` are the by-item random intercepts (drawn from a normal distribution with variance $\omega_{00}^2$ = `iri_sd^2`).  Half of the words are of type NOUN (`cond` = -.5) and half of type VERB (`cond` = .5).
+
+```{r item-tibble, echo=FALSE}
+items <- tibble(item_id = 1:nitem,
+                cond = rep(c(-.5, .5), times = nitem / 2),
+                iri = rnorm(nitem, 0, sd = iri_sd))
+```
+
+```{r, echo=FALSE}
+items
+```
+
+`r hide("Hint (cond)")`
+
+`rep()`
+
+`r unhide()`
+
+`r hide("Hint (iri)")`
+
+`rnorm(nitem, ???, ????...)`
+
+`r unhide()`
+
+`r hide("Solution")`
+
+```{r, ref.label="item-tibble", eval=FALSE}
+```
+
+`r unhide()`
+
+### Generate a sample of subjects
+
+To generate the by-subject random effects, you will need to generate data from a *bivariate normal distribution*.  To do this, we will use the function `MASS::mvrnorm()`.
+
+::: {.warning}
+
+Do not run `library("MASS")` just to get this one function, because `MASS` has a function `select()` that will overwrite the tidyverse version. Since all we want from MASS is the `mvrnorm()` function, we can just access it directly by the `pkgname::function` syntax, i.e., `MASS::mvrnorm()`.
+
+:::
+
+Here is an example of how to use `MASS::mvrnorm()` to randomly generate correlated data (with $r = -.6$) for a simple bivariate case. In this example, the variances of each of the two variables is defined as 1, such that the covariance becomes equal to the correlation between the variables.
+
+```{r}
+## mx is the variance-covariance matrix
+mx <- rbind(c(1, -.6),
+            c(-.6, 1))
+
+biv_data <- MASS::mvrnorm(1000,
+                          mu = c(V1 = 0, V2 = 0),
+                          Sigma = mx)
+
+## look at biv_data
+ggplot(as_tibble(biv_data), aes(V1, V2)) +
+  geom_point()
+```
+
+Your subjects table should look like this:
+
+`r hide("Click to reveal full table")`
+
+```{r subj-table, echo=FALSE}
+mx <- rbind(c(sri_sd^2,               rcor * sri_sd * srs_sd),
+            c(rcor * sri_sd * srs_sd, srs_sd^2)) # look at it
+
+by_subj_rfx <- MASS::mvrnorm(nsubj,
+                             mu = c(sri = 0, srs = 0),
+                             Sigma = mx)
+
+subjects <- as_tibble(by_subj_rfx) |>
+  mutate(subj_id = row_number()) |>
+  select(subj_id, everything())
+```
+
+```{r, echo=FALSE}
+subjects |> print(n = +Inf)
+```
+
+`r unhide()`
+
+`r hide("Hint 1")`
+
+recall that:
+
+|          |                                                |
+|----------|------------------------------------------------|
+| `sri_sd` | by-subject random intercept standard deviation |
+| `srs_sd` | by-subject random slope standard deviation     |
+| `r`      | correlation between intercept and slope        |
+
+`r unhide()`
+
+`r hide("Hint 2 (covariance)")`
+
+```
+covariance = r * sri_sd * srs_sd
+```
+
+`r unhide()`
+
+`r hide("Hint 3 (building a matrix)")`
+
+```{r, eval=FALSE}
+## bind together rows
+rbind(
+  c(sri_sd^2,            r * sri_sd * srs_sd),
+  c(r * sri_sd * srs_sd,            srs_sd^2)  )
+
+## see also `matrix()`
+```
+
+`r unhide()`
+
+`r hide("Hint 4: (matrix to tibble)")`
+
+`as_tibble(mx)`
+
+`r unhide()`
+
+`r hide("Solution")`
+
+```{r, eval=FALSE, ref.label="subj-table"}
+```
+
+`r unhide()`
+
+### Generate a sample of encounters (trials)
+
+Each trial is an *encounter* between a particular subject and stimulus.  In this experiment, each subject will see each stimulus.  Generate a table `trials` that lists the encounters in the experiments. Note: each participant encounters each stimulus item once.  Use the `cross_join()` function to create all possible encounters.
+
+Now apply this example to generate the table below, where `err` is the residual term, drawn from \(N \sim \left(0, \sigma^2\right)\), where \(\sigma\) is `err_sd`.
+
+```{r trials, include=FALSE}
+trials <- cross_join(subjects |> select(subj_id),
+                     items |> select(item_id)) |>
+  mutate(err = rnorm(n = nsubj * nitem,
+                     mean = 0, sd = err_sd))  
+```
+
+```{r show-trials, echo=FALSE}
+trials
+```
+
+`r hide("Solution")`
+
+```{r, eval=FALSE, ref.label="trials"}
+```
+
+`r unhide()`
+
+### Join `subjects`, `items`, and `trials`
+
+Merge the information in `subjects`, `items`, and `trials` to create the full dataset `dat`, which looks like this:
+
+```{r make-dat, include=FALSE}
+dat_sim <- subjects |>
+  inner_join(trials, "subj_id") |>
+  inner_join(items, "item_id") |>
+  arrange(subj_id, item_id) |>
+  select(subj_id, item_id, sri, iri, srs, cond, err)
+```
+
+```{r show-dat, echo=FALSE}
+dat_sim
+```
+
+Note: this is the full **decomposition table** for this model.
+
+`r hide("Solution")`
+
+```{r dat-solution, ref.label="make-dat", eval=FALSE}
+```
+
+`r unhide()`
+
+### Create the response variable {#addy}
+
+Add the response variable `Y` to dat according to the model formula:
+
+$$Y_{si} = \beta_0 + S_{0s} + I_{0i} + (\beta_1 + S_{1s})X_{i} + e_{si}$$
+
+so that the resulting table (`dat2`) looks like this:
+
+```{r add-y, include=FALSE}
+dat_sim2 <- dat_sim |>
+  mutate(Y = mu + sri + iri + (eff + srs) * cond + err) |>
+  select(subj_id, item_id, Y, everything())
+```
+
+```{r show-add-y, echo=FALSE}
+dat_sim2
+```
+
+`r hide("Solution")`
+
+```{r show-y-sol, eval=FALSE, ref.label="add-y"}
+```
+
+`r unhide()`
+
+### Fitting the model
+
+Now that you have created simulated data, estimate the model using `lme4::lmer()`, and run `summary()`.
+
+`r hide("Solution")`
+
+```{r fit-model}
+mod_sim <- lmer(Y ~ cond + (1 + cond | subj_id) + (1 | item_id),
+                dat_sim2)
+
+summary(mod_sim, corr = FALSE)
+```
+
+`r unhide()`
+
+Now see if you can identify the data generating parameters in the output of `summary()`.
+
+```{r recover-parms, include=FALSE}
+srfx <- attr(VarCorr(mod_sim)$subj_id, "stddev")
+irfx <- attr(VarCorr(mod_sim)$item_id, "stddev")
+rc <- attr(VarCorr(mod_sim)$subj_id, "correlation")[1, 2]
+
+res <- attr(VarCorr(mod_sim), "sc")
+
+ffx <- fixef(mod_sim)
+```
+
+First, try to find $\beta_0$ and $\beta_1$.
+
+`r hide("Solution (fixed effects)")`
+
+```{r show-betas, echo=FALSE}
+tribble(~parameter, ~variable, ~input, ~estimate,
+        "$\\hat{\\beta}_0$", "`mu`", mu, round(ffx[1], 3),
+        "$\\hat{\\beta}_1$", "`eff`", eff, round(ffx[2], 3)) |>
+  knitr::kable(escape = FALSE)
+```
+
+`r unhide()`
+
+Now try to find estimates of random effects parameters $\tau_{00}$, $\tau_{11}$, $\rho$, $\omega_{00}$, and $\sigma$.
+
+`r hide("Solution (random effects)")`
+
+```{r show-ranef, echo=FALSE}
+tribble(~parameter, ~variable, ~input, ~estimate,
+        "$\\hat{\\tau}_{00}$", "`sri_sd`", sri_sd, round(srfx[1], 3),
+        "$\\hat{\\tau}_{11}$", "`srs_sd`", srs_sd, round(srfx[2], 3),
+        "$\\hat{\\rho}$", "`rcor`", rcor, round(rc, 3),
+        "$\\hat{\\omega}_{00}$", "`iri_sd`", iri_sd, round(irfx[1], 3),
+        "$\\hat{\\sigma}$", "`err_sd`", err_sd, round(res, 3)) |>
+  knitr::kable()
+```
+
+`r unhide()`
+
+## Building the simulation script
+
+Now that we've learned to simulated data with crossed random factors of subjects and stimuli, let's build a script to run the simulation. You might want to start a fresh R script for this (and load in tidyverse + lme4 at the top).
+
+### Wrapping the code into `generate_data()`
+
+Now wrap the code you created from section \@ref(dgp) to \@ref(addy) into a single function `generate_data()` that takes the arguments: `eff` (effect size), `nsubj` (number of subjects), `nitem` (number of items), and then all the remaining DGP paramemters in this order: `mu`, `iri_sd`, `sri_sd`, `srs_sd`, `rcor`, and `err_sd`.
+
+The code should return a table with columns `subj_id`, `item_id`, `cond`, and `Y`.
+
+Here is 'starter' code that does nothing. 
+
+```{r starter-code, eval=FALSE}
+generate_data <- function(eff, nsubj, nitem,
+                          mu, iri_sd, sri_sd,
+                          srs_sd, rcor, err_sd) {
+
+  ## 1. TODO generate sample of stimuli
+  ## 2. TODO generate sample of subjects
+  ## 3. TODO generate trials, adding in error
+  ## 4. TODO join the three tables together
+  ## 5. TODO create the response variable
+
+  ## TODO replace this placeholder table with your result
+  tibble(subj_id = integer(0),
+         item_id = integer(0),
+         cond = double(0),
+         Y = double(0))
+}
+
+## test it out
+generate_data(0, 50, 10,
+              mu = 800, iri_sd = 80, sri_sd = 100,
+              srs_sd = 40, rcor = .2, err_sd = 200)
+```
+
+`r hide("Solution")`
+
+```{r generate-data}
+generate_data <- function(eff, nsubj, nitem,
+                          mu, iri_sd, sri_sd,
+                          srs_sd, rcor, err_sd) {
+
+  ## 1. generate sample of stimuli
+  items <- tibble(item_id = 1:nitem,
+                  cond = rep(c(-.5, .5), times = nitem / 2),
+                  iri = rnorm(nitem, 0, sd = iri_sd))
+  
+  ## 2. generate sample of subjects
+  mx <- rbind(c(sri_sd^2,               rcor * sri_sd * srs_sd),
+              c(rcor * sri_sd * srs_sd, srs_sd^2)) # look at it
+
+  by_subj_rfx <- MASS::mvrnorm(nsubj,
+                               mu = c(sri = 0, srs = 0),
+                               Sigma = mx)
+
+  subjects <- as_tibble(by_subj_rfx) |>
+    mutate(subj_id = row_number()) |>
+    select(subj_id, everything())
+  
+  ## 3. generate trials, adding in error
+  trials <- cross_join(subjects |> select(subj_id),
+                       items |> select(item_id)) |>
+    mutate(err = rnorm(n = nsubj * nitem,
+                       mean = 0, sd = err_sd))
+  
+  ## 4. join the three tables together, AND
+  ## 5. create the response variable
+  subjects |>
+    inner_join(trials, "subj_id") |>
+    inner_join(items, "item_id") |>
+    mutate(Y = mu + sri + iri + (eff + srs) * cond + err) |>
+    select(subj_id, item_id, cond, Y)
+}
+```
+
+`r unhide()`
+
+### Re-write `analyze_data()`
+
+Now let's re-write our `analyze_data()` function for this design.
+
+```{r analyze-stub, eval=FALSE}
+analyze_data <- function(dat) {
+  suppressWarnings( # ignore non-convergence
+    suppressMessages({ # ignore 'singular fit'
+      ## TODO: something with lmer()
+    }))
+}
+```
+
+`r hide("Solution")`
+
+```{r analyze-data}
+analyze_data <- function(dat) {
+  suppressWarnings( # ignore non-convergence
+    suppressMessages({ # ignore 'singular fit'
+      lmer(Y ~ cond + (cond | subj_id) +
+             (1 | item_id), data = dat)
+    }))
+}
+```
+
+`r unhide()`
+
+### Re-write `extract_stats()`
+
+In the last section, we wrote the function `extract_stats()` to pull out statistics from a t-test object.
+
+Let's change it so it gets information about the regression coefficient (fixed effect) for `cond`. Unfortunately we can't use `broom::tidy()` here.
+
+Recall that we have suppressed any messages about singularity or nonconvergence. We want to track this information, so we'll get it from the fitted model object. 
+
+To find out whether a fit is singular, we can use the function `isSingular()`. Figuring out whether a model has converged is more complicate. Use the helper function `check_converged()` below. This takes a fitted model object as input and returns `TRUE` if the model converged, `FALSE` otherwise.
+
+```{r check-converged}
+check_converged <- function(mobj) {
+  ## warning: this is kind of a hack!
+  ## see also performance::check_convergence()
+  sm <- summary(mobj)
+  is.null(sm$optinfo$conv$lme4$messages)
+}
+```
+
+Use `fixef()` to get the fixed effects estimates from the model.
+
+You'll also want to get the standard error for the fixed effects. You can do so using the code 
+
+```{r, eval=FALSE}
+sqrt(diag(vcov(mobj)))
+```
+
+where `mobj` is the name of the fitted model object. We'll then calculate a $p$ value based on Wald $z$, which is just the estimate divided by its standard error, and then treated as a $z$ statistic (from the standard normal distribution). If we call that statistic `tval`, you can get the $p$ value using `2 * (1 - pnorm(abs(tval)))`.
+
+**TASK: Write a new version of `extract_stats()` that takes `mobj`, a fitted model object as input, and returns a tibble with columns `sing` (`TRUE` for singular fit, `FALSE` otherwise), `conv` (`TRUE` for converged, `FALSE` otherwise), `estimate` with the fixed effect estimate for the effect of `cond`, `stderr` for the standard error, `tval` for the $t$-value, and `pval` for the $p$-value.**
+
+Test it by running it out on `mod_sim` which you estimated above. You should get the results like the following.
+
+```{r extract-stats, echo=FALSE}
+extract_stats <- function(mobj) {
+  tibble(sing = isSingular(mobj),
+         conv = check_converged(mobj),
+         estimate = fixef(mobj)["cond"],
+         stderr = sqrt(diag(vcov(mobj)))["cond"],
+         tval = estimate / stderr,
+         pval = 2 * (1 - pnorm(abs(tval))))
+}
+```
+
+```{r es-test}
+extract_stats(mod_sim)
+```
+
+`r hide("Solution")`
+
+```{r es-show, ref.label="extract-stats"}
+```
+
+`r unhide()`
+
+Now we have completed the three main functions for a single run as shown in \@ref(fig:flow-img). We can try them out like this:
+
+```{r}
+generate_data(eff = 0, nsubj = 20, nitem = 10,
+              mu = 800, iri_sd = 80, sri_sd = 100,
+              srs_sd = 40, rcor = .2, err_sd = 200) |>
+  analyze_data() |>
+  extract_stats()
+```
+
+The next step will be to wrap this in a function.
+
+### Re-write `do_once()`
+
+The function `do_once()` performs all three functions (generates the data, analyzes it, and subtracts the results). It needs some minor changes to work with the parameters of the new DGP. 
+
+Now let's re-write `do_once()`. Here's starter code from the function we created for the one-sample t-test context. You'll need to change its arguments to match `generate_data()` as well as the arguments passed to `generate_data()` via `map()`. It's also a good idea to update the `message()` it prints for the user.
+
+```{r do-once-stub, eval=FALSE}
+do_once <- function(nmc, eff, nsubj, sd, alpha = .05) {
+
+  message("computing power over ", nmc, " runs with eff=",
+          eff, "; nsubj=", nsubj, "; sd = ", sd, "; alpha = ", alpha)
+  
+  tibble(run_id = seq_len(nmc),
+         dat = map(run_id, \(.x) generate_data(eff, nsubj, sd)),
+         mobj = map(dat, \(.x) analyze_data(.x)),
+         stats = map(mobj, \(.x) extract_stats(.x)))
+}
+```
+
+It doesn't do everything we need (yet) because in the end we'll want to `compute_power()` and return that instead. But we'll save that for later.
+
+```{r do-once-partial, echo=FALSE}
+do_once <- function(eff, nsubj, nitem, nmc,
+                   mu, iri_sd, sri_sd,
+                   srs_sd, rcor, err_sd) {
+  ## generate, analyze, and extract for a single parameter setting
+  message("computing stats over ", nmc,
+          " runs for nsubj=", nsubj, "; ",
+          "nitem=", nitem, "; ",
+          "eff=", eff)
+  tibble(run_id = seq_len(nmc)) |>
+    mutate(dat = map(run_id, \(.x) generate_data(eff, nsubj, nitem,
+                                                 mu, iri_sd, sri_sd,
+                                                 srs_sd, rcor, err_sd)),
+           mobj = map(dat, \(.x) analyze_data(.x)),
+           stats = map(mobj, \(.x) extract_stats(.x)))
+}
+```
+
+Try it out with the code below. Results should look as follows.
+
+```{r dop-test}
+set.seed(1451)
+
+do_test <- do_once(eff = 0, nsubj = 20, nitem = 10, nmc = 20,
+                   mu = 800, iri_sd = 80, sri_sd = 100,
+                   srs_sd = 40, rcor = .2, err_sd = 200)
+
+do_test
+```
+
+`r hide("Solution")`
+
+```{r do-once-partial-show, ref.label="do-once-partial"}
+```
+
+`r unhide()`
+
+### Update `do_once()` to return statistics
+
+We're nearly there. Our `do_once()` function returns the raw data from the run, but what we'd really like instead are the power statistics. So we'll need to re-write `compute_power()` and then include that in `do_once()`. We stored the results of the (old) `do_once()` in `do_test`, which is useful for testing it out. 
+
+Recall that we can get all the stats into a single table like so.
+
+```{r}
+do_test |>
+  select(run_id, stats) |>
+  unnest(stats)
+```
+
+**TASK: Write `compute_power()` to provide not only power information, but also reports the proportion of runs that had a 'singularity' message (`n_sing`) or that did not converge (`n_nonconv`).**
+
+Results should look like so.
+
+```{r compute-power}
+compute_power <- function(x, alpha = .05) {
+  ## after completing all the Monte Carlo runs for a set,
+  ## calculate statistics
+  x |>
+    select(run_id, stats) |>
+    unnest(stats) |>
+    summarize(n_sing = sum(sing),
+              n_nonconv = sum(!conv), 
+              n_sig = sum(pval < alpha),
+              N = n(),
+              power = n_sig / N)
+}
+```
+
+```{r}
+do_test |>
+  compute_power()
+```
+
+`r hide("Solution")`
+
+```{r compute-power-show, ref.label="compute-power"}
+```
+
+`r unhide()`
+
+**TASK: update `do_once()` so that it ends with `compute_power()`.**
+
+```{r do-once}
+do_once <- function(eff, nsubj, nitem, nmc,
+                   mu, iri_sd, sri_sd,
+                   srs_sd, rcor, err_sd) {
+  ## generate, analyze, and extract for a single parameter setting
+  message("computing stats over ", nmc,
+          " runs for nsubj=", nsubj, "; ",
+          "nitem=", nitem, "; ",
+          "eff=", eff)
+  
+  tibble(run_id = seq_len(nmc)) |>
+    mutate(dat = map(run_id, \(.x) generate_data(eff, nsubj, nitem,
+                                                 mu, iri_sd, sri_sd,
+                                                 srs_sd, rcor, err_sd)),
+           mobj = map(dat, \(.x) analyze_data(.x)),
+           stats = map(mobj, \(.x) extract_stats(.x))) |>
+  compute_power()
+}
+```
+
+```{r}
+set.seed(1451)
+
+do_once(eff = 0, nsubj = 20, nitem = 10, nmc = 20,
+                   mu = 800, iri_sd = 80, sri_sd = 100,
+                   srs_sd = 40, rcor = .2, err_sd = 200)
+```
+
+`r hide("Solution")`
+
+```{r do-show, ref.label="do-once"}
+```
+
+`r unhide()`
+
+### Main code
+
+Now that we've re-written all of the functions, let's add the following lines to create a fully reproducible script that we can run in batch mode.
+
+```{r main-code, eval=FALSE}
+set.seed(1451) # for deterministic output
+
+## determine effect sizes, nsubj, nitem, and nmc from the command line
+if (length(commandArgs(TRUE)) != 6L) {
+  stop("need to specify 'nmc' 'eff_a' 'eff_b' 'steps' 'nsubj' 'nitem'")
+}
+
+nmc <- commandArgs(TRUE)[1] |> as.integer()   # no. Monte Carlo runs
+eff_a <- commandArgs(TRUE)[2] |> as.double()  # smallest effect size
+eff_b <- commandArgs(TRUE)[3] |> as.double()  # largest effect size
+steps <- commandArgs(TRUE)[4] |> as.integer() # number of steps
+nsubj <- commandArgs(TRUE)[5] |> as.integer()
+nitem <- commandArgs(TRUE)[6] |> as.integer()
+
+params <- tibble(id = seq_len(steps),
+                 eff = seq(eff_a, eff_b, length.out = steps))
+
+allsets <- params |>
+  mutate(result = map(eff,
+                      \(.x) do_once(.x, nsubj = nsubj, nitem = nitem, nmc = nmc,
+                                    mu = 800, iri_sd = 80, sri_sd = 100,
+                                    srs_sd = 40, rcor = .2, err_sd = 200)))
+                      
+pow_result <- allsets |>
+  unnest(result)
+
+pow_result
+
+outfile <- sprintf("sim-results_%d_%0.2f_%0.2f_%d_%d_%d.rds",
+                   nmc, eff_a, eff_b, steps, nsubj, nitem)
+
+saveRDS(pow_result, outfile)
+
+message("results saved to '", outfile, "'")
+```
+
+### The full script
+
+`r hide("Click here to see the full script")`
+
+```{r full-script, eval=FALSE}
+#############################
+## ADD-ON PACKAGES
+
+suppressPackageStartupMessages({
+  library("dplyr")
+  library("tibble")
+  library("purrr")
+  library("tidyr")
+
+  library("lme4")
+})
+
+requireNamespace("MASS") # make sure it's there but don't load it
+
+#############################
+## CUSTOM FUNCTIONS
+
+<<generate-data>>
+
+<<analyze-data>>
+
+<<extract-stats>>
+
+#############################
+## UTILITY FUNCTIONS
+
+<<check-converged>>
+
+<<compute-power>>
+
+<<do-once>>
+
+#############################
+## MAIN CODE STARTS HERE
+
+<<main-code>>
+```
+
+## Running in batch mode
+
+Now let's run our power simulation.
+
+Save the full script into a file named `my-power-script.R`.
+
+Go to your operating system's command line (or do so in RStudio), and navigate to the directory where you saved it.
+
+At the command line, type
+
+```
+Rscript my-power-script.R
+```
+
+This should produce an error because you haven't specified any command line arguments.
+
+```
+Error: need to specify 'nmc' 'eff_a' 'eff_b' 'steps' 'nsubj' 'nitem'
+Execution halted
+```
+
+Let's try again, putting in arguments in that order.
+
+```
+Rscript my-power-script.R 1000 0 160 5 40 20
+```
+
+It worked!
+
+```
+computing stats over 1000 runs for nsubj=40; nitem=20; eff=0
+computing stats over 1000 runs for nsubj=40; nitem=20; eff=40
+computing stats over 1000 runs for nsubj=40; nitem=20; eff=80
+computing stats over 1000 runs for nsubj=40; nitem=20; eff=120
+computing stats over 1000 runs for nsubj=40; nitem=20; eff=160
+# A tibble: 5 × 7
+     id   eff n_sing n_nonconv n_sig     N power
+  <int> <dbl>  <int>     <int> <int> <int> <dbl>
+1     1     0    298       309    64  1000 0.064
+2     2    40    257       270   200  1000 0.2
+3     3    80    282       293   577  1000 0.577
+4     4   120    271       283   844  1000 0.844
+5     5   160    279       287   982  1000 0.982
+results saved to 'sim-results_1000_0.00_160.00_5_40_20.rds'
+```
