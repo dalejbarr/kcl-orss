@@ -158,7 +158,7 @@ Solution
 <h3>
 <span class="header-section-number">1.1.3</span> Iterating using <code>purrr::map()</code><a class="anchor" aria-label="anchor" href="#iterate"><i class="fas fa-link"></i></a>
 </h3>
-<p>To estimate power using simulation, we need to create our function and then run it many times—maybe 1,000 or 10,000 times to get a reliable estimate. Of course, we are not going to type a function call to do it that many times; it would be tedious, and besides, we might make mistakes. What we need is something to do the iteration for us, possible changing the input to our function each time.</p>
+<p>To estimate power using simulation, we need to create our function and then run it many times—maybe 1,000 or 10,000 times to get a reliable estimate. Of course, we are not going to type a function call to do it that many times; it would be tedious, and besides, we might make mistakes. What we need is something to do the iteration for us, possibly changing the input to our function each time.</p>
 <p>In many programming languages, this is accomplished by writing a "for" loop. This is possible in R as well, but we're going to do this a different way that saves typing.</p>
 <p>We are going to use the function <code><a href="https://purrr.tidyverse.org/reference/map.html">purrr::map()</a></code>. Let's look at an example. Suppose we had a vector of integers, <code>x</code>, and wanted to compute the logarithm (<code><a href="https://rdrr.io/r/base/Log.html">log()</a></code>) of each one. If we didn't know about <code><a href="https://purrr.tidyverse.org/reference/map.html">map()</a></code>, we might type the following.</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
@@ -634,7 +634,7 @@ Solution
 <span></span>
 <span><span class="va">result</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://tibble.tidyverse.org/reference/tibble.html">tibble</a></span><span class="op">(</span>run_id <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html">seq_len</a></span><span class="op">(</span><span class="va">nmc</span><span class="op">)</span>,</span>
 <span>                 dat <span class="op">=</span> <span class="fu"><a href="https://purrr.tidyverse.org/reference/map.html">map</a></span><span class="op">(</span><span class="va">run_id</span>, \<span class="op">(</span><span class="va">.x</span><span class="op">)</span> <span class="fu">generate_data</span><span class="op">(</span><span class="fl">0</span>, <span class="fl">10</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<p><strong>TASK: Update the code above to add two additional rows, <code>mobj</code> (a list-column) which has the result of applying <code>analyze_data()</code> to each generated dataset, and <code>stats</code> (a list-column) which has the result of applying <code>extract_stats()</code> to each element <code>mobj</code>.</strong></p>
+<p><strong>TASK: Update the code above to add two additional variables to the tibble, <code>mobj</code> (a list-column) which has the result of applying <code>analyze_data()</code> to each generated dataset, and <code>stats</code> (a list-column) which has the result of applying <code>extract_stats()</code> to each element <code>mobj</code>.</strong></p>
 <p>The table <code>result</code> should look as follows.</p>
 <pre><code>## # A tibble: 20 × 4
 ##    run_id dat               mobj    stats           
@@ -661,9 +661,18 @@ Solution
 ## 20     20 &lt;tibble [10 × 2]&gt; &lt;htest&gt; &lt;tibble [1 × 8]&gt;</code></pre>
 <div class="webex-solution">
 <button>
+Hint
+</button>
+<div class="sourceCode" id="cb73"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb73-1"><a href="building-blocks-of-simulation.html#cb73-1" tabindex="-1"></a>result <span class="ot">&lt;-</span> <span class="fu">tibble</span>(<span class="at">run_id =</span> <span class="fu">seq_len</span>(nmc),</span>
+<span id="cb73-2"><a href="building-blocks-of-simulation.html#cb73-2" tabindex="-1"></a>                 <span class="at">dat =</span> <span class="fu">map</span>(run_id, \(.x) <span class="fu">generate_data</span>(<span class="dv">0</span>, <span class="dv">10</span>)),</span>
+<span id="cb73-3"><a href="building-blocks-of-simulation.html#cb73-3" tabindex="-1"></a>                 <span class="at">mobj =</span> <span class="fu">map</span>(???????),</span>
+<span id="cb73-4"><a href="building-blocks-of-simulation.html#cb73-4" tabindex="-1"></a>                 <span class="at">stats =</span> <span class="fu">map</span>(????????))</span></code></pre></div>
+</div>
+<div class="webex-solution">
+<button>
 Solution
 </button>
-<div class="sourceCode" id="cb73"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb74"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">nmc</span> <span class="op">&lt;-</span> <span class="fl">20L</span> <span class="co"># number of Monte Carlo runs</span></span>
 <span></span>
 <span><span class="va">result</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://tibble.tidyverse.org/reference/tibble.html">tibble</a></span><span class="op">(</span>run_id <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html">seq_len</a></span><span class="op">(</span><span class="va">nmc</span><span class="op">)</span>,</span>
@@ -676,7 +685,7 @@ Solution
 <span class="header-section-number">1.2.4.1</span> Calculating power<a class="anchor" aria-label="anchor" href="#calculating-power"><i class="fas fa-link"></i></a>
 </h4>
 <p>We're getting so close! Now what we need to do is compute power based on the statistics we have calculated (in the <code>stats</code>) column. We can extract these using <code><a href="https://dplyr.tidyverse.org/reference/select.html">select()</a></code> and <code><a href="https://tidyr.tidyverse.org/reference/unnest.html">unnest()</a></code> like so.</p>
-<div class="sourceCode" id="cb74"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb75"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">result</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html">select</a></span><span class="op">(</span><span class="va">run_id</span>, <span class="va">stats</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://tidyr.tidyverse.org/reference/unnest.html">unnest</a></span><span class="op">(</span><span class="va">stats</span><span class="op">)</span></span></code></pre></div>
@@ -717,7 +726,7 @@ Hint
 <button>
 Solution
 </button>
-<div class="sourceCode" id="cb76"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb77"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">compute_power</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">x</span>, <span class="va">alpha</span> <span class="op">=</span> <span class="fl">.05</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  <span class="va">x</span> <span class="op">|&gt;</span></span>
 <span>    <span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html">select</a></span><span class="op">(</span><span class="va">stats</span><span class="op">)</span> <span class="op">|&gt;</span></span>
@@ -729,7 +738,7 @@ Solution
 </div>
 <p><strong>TASK: Let's wrap the above code in a function <code>do_once()</code>, that we can run in batch mode as well as interactively, and that goes all the way from from <code>generate_data()</code> to <code>compute_power()</code>. This function should accept as input arguments <code>nmc</code> (number of Monte Carlo runs), <code>eff</code> (effect size), <code>nsubj</code> (number of subjects), <code>sd</code> (standard deviation), and alpha level <code>alpha</code> (defaulting to .05). The function should return the results of <code>compute_power()</code>.</strong></p>
 <p>Once complete, test it using the code below. Your output should be identical.</p>
-<div class="sourceCode" id="cb77"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb78"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html">set.seed</a></span><span class="op">(</span><span class="fl">1451</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu">do_once</span><span class="op">(</span>nmc <span class="op">=</span> <span class="fl">1000</span>, eff <span class="op">=</span> <span class="fl">0</span>, nsubj <span class="op">=</span> <span class="fl">20</span>, sd <span class="op">=</span> <span class="fl">1</span>, alpha <span class="op">=</span> <span class="fl">.05</span><span class="op">)</span></span></code></pre></div>
@@ -741,7 +750,7 @@ Solution
 <button>
 Solution
 </button>
-<div class="sourceCode" id="cb79"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb80"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">do_once</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">nmc</span>, <span class="va">eff</span>, <span class="va">nsubj</span>, <span class="va">sd</span>, <span class="va">alpha</span> <span class="op">=</span> <span class="fl">.05</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  <span class="fu"><a href="https://tibble.tidyverse.org/reference/tibble.html">tibble</a></span><span class="op">(</span>run_id <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html">seq_len</a></span><span class="op">(</span><span class="va">nmc</span><span class="op">)</span>,</span>
 <span>         dat <span class="op">=</span> <span class="fu"><a href="https://purrr.tidyverse.org/reference/map.html">map</a></span><span class="op">(</span><span class="va">run_id</span>, \<span class="op">(</span><span class="va">.x</span><span class="op">)</span> <span class="fu">generate_data</span><span class="op">(</span><span class="va">eff</span>, <span class="va">nsubj</span>, <span class="va">sd</span><span class="op">)</span><span class="op">)</span>,</span>
@@ -751,7 +760,7 @@ Solution
 <span><span class="op">}</span></span></code></pre></div>
 </div>
 <p>OK, one last amendment to <code>do_once()</code>. This function can take a long time to return depending on the number of Monte Carlo runs it needs to complete. So it's useful to send a message to the user so the user knows that the program didn't just hang. Let's do that.</p>
-<div class="sourceCode" id="cb80"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb81"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">do_once</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">nmc</span>, <span class="va">eff</span>, <span class="va">nsubj</span>, <span class="va">sd</span>, <span class="va">alpha</span> <span class="op">=</span> <span class="fl">.05</span><span class="op">)</span> <span class="op">{</span></span>
 <span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/message.html">message</a></span><span class="op">(</span><span class="st">"computing power over "</span>, <span class="va">nmc</span>, <span class="st">" runs with eff="</span>,</span>
@@ -786,24 +795,24 @@ Solution
 <button>
 Hint about creating a sequence
 </button>
-<div class="sourceCode" id="cb82"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb83"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/seq.html">seq</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1</span>, length.out <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="webex-solution">
 <button>
 Hint: General idea about how the code should look
 </button>
-<div class="sourceCode" id="cb83"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb83-1"><a href="building-blocks-of-simulation.html#cb83-1" tabindex="-1"></a>pow_result <span class="ot">&lt;-</span> <span class="fu">tibble</span>(<span class="at">eff =</span> <span class="fu">seq</span>(???),</span>
-<span id="cb83-2"><a href="building-blocks-of-simulation.html#cb83-2" tabindex="-1"></a>                     <span class="at">pow =</span> <span class="fu">map</span>(eff, ???)) <span class="sc">|&gt;</span></span>
-<span id="cb83-3"><a href="building-blocks-of-simulation.html#cb83-3" tabindex="-1"></a>  <span class="fu">unnest</span>(pow)</span>
-<span id="cb83-4"><a href="building-blocks-of-simulation.html#cb83-4" tabindex="-1"></a></span>
-<span id="cb83-5"><a href="building-blocks-of-simulation.html#cb83-5" tabindex="-1"></a>pow_result</span></code></pre></div>
+<div class="sourceCode" id="cb84"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb84-1"><a href="building-blocks-of-simulation.html#cb84-1" tabindex="-1"></a>pow_result <span class="ot">&lt;-</span> <span class="fu">tibble</span>(<span class="at">eff =</span> <span class="fu">seq</span>(???),</span>
+<span id="cb84-2"><a href="building-blocks-of-simulation.html#cb84-2" tabindex="-1"></a>                     <span class="at">pow =</span> <span class="fu">map</span>(eff, ???)) <span class="sc">|&gt;</span></span>
+<span id="cb84-3"><a href="building-blocks-of-simulation.html#cb84-3" tabindex="-1"></a>  <span class="fu">unnest</span>(pow)</span>
+<span id="cb84-4"><a href="building-blocks-of-simulation.html#cb84-4" tabindex="-1"></a></span>
+<span id="cb84-5"><a href="building-blocks-of-simulation.html#cb84-5" tabindex="-1"></a>pow_result</span></code></pre></div>
 </div>
 <div class="webex-solution">
 <button>
 Solution
 </button>
-<div class="sourceCode" id="cb84"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb85"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">pow_result</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://tibble.tidyverse.org/reference/tibble.html">tibble</a></span><span class="op">(</span>eff <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html">seq</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1</span>, length.out <span class="op">=</span> <span class="fl">5</span><span class="op">)</span>,</span>
 <span>                     pow <span class="op">=</span> <span class="fu"><a href="https://purrr.tidyverse.org/reference/map.html">map</a></span><span class="op">(</span><span class="va">eff</span>, \<span class="op">(</span><span class="va">.x</span><span class="op">)</span> <span class="fu">do_once</span><span class="op">(</span><span class="fl">1000</span>, <span class="va">.x</span>, <span class="fl">20</span>, <span class="fl">1</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://tidyr.tidyverse.org/reference/unnest.html">unnest</a></span><span class="op">(</span><span class="va">pow</span><span class="op">)</span></span></code></pre></div>
@@ -819,7 +828,7 @@ Solution
 <button>
 See the full script
 </button>
-<div class="sourceCode" id="cb85"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb86"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">#############################</span></span>
 <span><span class="co">## ADD-ON PACKAGES</span></span>
 <span></span>

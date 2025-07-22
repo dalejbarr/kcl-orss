@@ -67,7 +67,7 @@ rnorm(15, mean = 600, sd = 80)
 
 ### Iterating using `purrr::map()` {#iterate}
 
-To estimate power using simulation, we need to create our function and then run it many times—maybe 1,000 or 10,000 times to get a reliable estimate. Of course, we are not going to type a function call to do it that many times; it would be tedious, and besides, we might make mistakes. What we need is something to do the iteration for us, possible changing the input to our function each time.
+To estimate power using simulation, we need to create our function and then run it many times—maybe 1,000 or 10,000 times to get a reliable estimate. Of course, we are not going to type a function call to do it that many times; it would be tedious, and besides, we might make mistakes. What we need is something to do the iteration for us, possibly changing the input to our function each time.
 
 In many programming languages, this is accomplished by writing a "for" loop. This is possible in R as well, but we're going to do this a different way that saves typing.
 
@@ -484,7 +484,7 @@ result <- tibble(run_id = seq_len(nmc),
                  dat = map(run_id, \(.x) generate_data(0, 10)))
 ```
 
-**TASK: Update the code above to add two additional rows, `mobj` (a list-column) which has the result of applying `analyze_data()` to each generated dataset, and `stats` (a list-column) which has the result of applying `extract_stats()` to each element `mobj`.**
+**TASK: Update the code above to add two additional variables to the tibble, `mobj` (a list-column) which has the result of applying `analyze_data()` to each generated dataset, and `stats` (a list-column) which has the result of applying `extract_stats()` to each element `mobj`.**
 
 ```{r do-once-pre2, include=FALSE}
 nmc <- 20L # number of Monte Carlo runs
@@ -500,6 +500,17 @@ The table `result` should look as follows.
 ```{r do-once-pre-output, echo=FALSE}
 result
 ```
+
+`r hide("Hint")`
+
+```{r do-once-hint, eval=FALSE, echo=TRUE}
+result <- tibble(run_id = seq_len(nmc),
+                 dat = map(run_id, \(.x) generate_data(0, 10)),
+                 mobj = map(???????),
+                 stats = map(????????))
+```
+
+`r unhide()`
 
 `r hide("Solution")`
 
